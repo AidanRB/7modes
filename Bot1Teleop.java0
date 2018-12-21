@@ -1,0 +1,220 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
+import java.lang.Math;
+
+@TeleOp(name="MainlyMecanum", group="Mecanum")
+public class Bot1Teleop extends OpMode {
+
+    /* Declare OpMode members. */
+    private Botbot robot = new Botbot(); // use the class created to define a Mecanobot's hardware
+    float Ch1,Ch2,Ch3,Ch4,FrontLeft,BackLeft,FrontRight,BackRight,r,theta;
+    float oldgyro = 0;
+    double slowscale = 0.8;
+
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
+    @Override
+    public void init() {
+        /* Initialize the hardware variables.
+         * The init() method of the hardware class does all the work here
+         */
+        robot.init(hardwareMap);
+
+        telemetry.addData("Robot", "ready");
+        //telemetry.addData("motor top speed", robot.backRight.setMaxSpeed(100));
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+        robot.updateGyro(50);
+        telemetry.addData("X", robot.angles.firstAngle);
+        telemetry.addData("Y", robot.angles.secondAngle);
+        telemetry.addData("Z", robot.angles.thirdAngle);
+        telemetry.addData("dX", robot.dangles[0]);
+        telemetry.addData("dY", robot.dangles[1]);
+        telemetry.addData("dZ", robot.dangles[2]);
+        telemetry.addData("gravity", robot.gravity);
+        updateTelemetry(telemetry);
+    }
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        robot.updateGyro(5);
+        
+        //Mecanum drive
+        Ch1 = gamepad1.right_stick_x;
+        //Ch2 = -gamepad1.right_stick_y;
+        Ch3 = gamepad1.left_stick_y;
+        Ch4 = gamepad1.left_stick_x;
+        
+        //Field-centric drive
+        r = (float) Math.min(Math.sqrt(Ch4*Ch4 + Ch3*Ch3), 1);
+        //mag = Math.sqrt(Ch4, Ch3);
+        theta = (float) Math.atan2(Ch4, Ch3);
+        
+        theta += robot.angles.thirdAngle;
+        
+        //Ch4 = (float) Math.sin(theta) * r;
+        //Ch3 = (float) Math.cos(theta) * r;
+
+        FrontLeft = Ch3 + Ch1 + Ch4;
+        FrontRight = Ch3 - Ch1 - Ch4;
+        BackLeft = Ch3 + Ch1 - Ch4;
+        BackRight = Ch3 - Ch1 + Ch4;
+
+        /*FrontLeft = Ch3 + Ch4;
+        BackLeft = Ch3 + Ch4;
+        FrontRight = Ch3 - Ch4;
+        BackRight = Ch3 - Ch4;*/
+
+        // slow down with right trigger on joy1
+        
+        /*if(!gamepad1.right_bumper) {
+            FrontLeft *= slowscale;
+            FrontRight *= slowscale;
+            BackLeft *= slowscale;
+            BackRight *= slowscale;
+        }*/
+
+        setAllS(FrontLeft, FrontRight, BackLeft, BackRight);
+
+        telemetry.addData("frontRight", FrontRight);
+        telemetry.addData("frontLeft", FrontLeft);
+        telemetry.addData("backRight", BackRight);
+        telemetry.addData("backLeft", BackLeft);
+        telemetry.addData("frontRightPos", robot.frontRight.getCurrentPosition());
+        telemetry.addData("frontLeftPos", robot.frontLeft.getCurrentPosition());
+        telemetry.addData("backRightPos", robot.backRight.getCurrentPosition());
+        telemetry.addData("backLeftPos", robot.backLeft.getCurrentPosition());
+        /*telemetry.addData("X", robot.angles.firstAngle);
+        telemetry.addData("Y", robot.angles.secondAngle);
+        telemetry.addData("Z", robot.angles.thirdAngle);
+        telemetry.addData("dX", robot.dangles[0]);
+        telemetry.addData("dY", robot.dangles[1]);
+        telemetry.addData("dZ", robot.dangles[2]);
+        telemetry.addData("r", r);
+        telemetry.addData("theta", theta);*/
+        
+        updateTelemetry(telemetry);
+        
+        robot.lift.setPower(-gamepad2.right_trigger + gamepad2.left_trigger);
+        if(-gamepad2.right_trigger + gamepad2.left_trigger == 0) {
+            robot.lift.setPower(-gamepad1.right_trigger + gamepad1.left_trigger);
+        }
+        
+        if(gamepad2.right_bumper || gamepad1.right_bumper) {
+            robot.intakeLeft.setPower(1);
+            robot.intakeRight.setPower(1);
+        }
+        else if(gamepad2.left_bumper || gamepad1.left_bumper) {
+            robot.intakeLeft.setPower(-1);
+            robot.intakeRight.setPower(-1);
+        }
+        else {
+            robot.intakeLeft.setPower(0);
+            robot.intakeRight.setPower(0);
+        }
+        
+        if(gamepad2.a || gamepad1.a) {                //it chutes them out
+            robot.removerOne.setPower(1);
+            robot.removerTwo.setPower(1);
+        } else if(gamepad2.b || gamepad1.b) {
+            robot.removerOne.setPower(-1);
+            robot.removerTwo.setPower(-1);
+        } else {
+            robot.removerOne.setPower(0);
+            robot.removerTwo.setPower(0);
+        }
+        
+        if(gamepad2.x || gamepad1.x) {
+            robot.stopper.setPosition(1);
+        } else if(gamepad2.y || gamepad1.y) {
+            robot.stopper.setPosition(0.2);
+        }
+        
+        if(gamepad2.dpad_up || gamepad1.dpad_up) {
+            robot.jewelArm.setPosition(robot.jewelArm.getPosition() - 0.01);
+        } else if(gamepad2.dpad_down || gamepad1.dpad_down) {
+            robot.jewelArm.setPosition(robot.jewelArm.getPosition() + 0.01);
+        } else {
+            robot.jewelArm.setPosition(robot.jewelArm.getPosition());
+        }
+    }
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+    @Override
+    public void stop() {
+    }
+
+    private double si(double joyVal, double divBy) {
+        /**
+         * This function scales the input.
+         * It makes it so that when you push the joystick forward, the robot doesn't respond in a linear way.
+         * When you push it a little bit, you have more precision control over speed.
+         * Pushing all the way overrides the math and jumps to 1.
+         */
+        if(joyVal>=1) return 1;
+        else if(joyVal<=-1) return -1;
+        else return -Math.log(-joyVal + 1) / divBy;
+    }
+    
+    private void timeDrive(float x, float y,  int time) {
+        float fl = x + y;
+        float bl = x - y;
+        float fr = x - y;
+        float br = x + y;
+        
+        setAll(fl, bl, fr, br);
+        wait(1000);
+        setAll(0, 0, 0, 0);
+    }
+    
+    private void setAll(float fl, float fr, float bl, float br) {
+        robot.frontLeft.setPower(fl);
+        robot.frontRight.setPower(fr);
+        robot.backLeft.setPower(bl);
+        robot.backRight.setPower(br);
+    }
+    
+    private void setAllS(float fl, float fr, float bl, float br) {
+        robot.frontLeft.setPower(Range.clip(si(fl, 1.5), -1, 1));
+        robot.frontRight.setPower(Range.clip(si(fr, 1.5), -1, 1));
+        robot.backLeft.setPower(Range.clip(si(bl, 1.5), -1, 1));
+        robot.backRight.setPower(Range.clip(si(br, 1.5), -1, 1));
+    }
+    
+    private void wait(int time) {
+        try {
+            Thread.sleep(time);
+        }
+        catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+
+
+
+

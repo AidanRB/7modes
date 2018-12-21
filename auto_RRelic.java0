@@ -1,0 +1,143 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import android.graphics.Color;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+//import android.speech.tts.TextToSpeech;
+
+@Autonomous(name = "RedRelic-enc", group = "encoders")
+
+public class auto_RRelic extends LinearOpMode {
+    private Botbot robot = new Botbot();
+    
+    ColorSensor colorSense;
+    DcMotor frontLeft;
+    DcMotor frontRight;
+    DcMotor backLeft;
+    DcMotor backRight;
+
+    @Override
+    public void runOpMode() throws InterruptedException{
+        robot.init(hardwareMap);
+
+        telemetry.addData("Robot", "ready");
+        
+        colorSense = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
+        
+        float hsv[] = {0F, 0F, 0F};
+        final float values[] = hsv;
+        int scale = 1;
+        boolean colorIsRed = false;
+        
+        waitForStart();
+        
+        robot.jewelArm.setPosition(1);
+        
+        wait(1000);
+        
+        Color.RGBToHSV((int) (colorSense.red() * scale),
+                (int) (colorSense.green() * scale),
+                (int) (colorSense.blue() * scale),
+                hsv);
+        
+        if(hsv[0] < 100 || hsv[0] > 300) colorIsRed = true;
+        else colorIsRed = false;
+        
+        if(!colorIsRed) {
+            driveTime((float) 0.2, (float) 0.2, 300);
+            robot.jewelArm.setPosition(0.4);
+            wait(1000);
+            telemetry.addData("color", "blue");
+        } else {
+            driveTime((float) -0.2, (float) -0.2, 300);
+            robot.jewelArm.setPosition(0.4);
+            wait(1000);
+            telemetry.addData("color", "red");
+            driveTime((float) 0.2, (float) 0.2, 700);
+        }
+        
+        driveTime((float) 1, (float) 0.2, 500);
+        
+        robot.removerOne.setPower(1);
+        robot.removerTwo.setPower(1);
+
+        wait(5000);
+        
+        robot.removerOne.setPower(0);
+        robot.removerTwo.setPower(0);
+
+        driveTime((float) 0.3, (float) 0.3, 200);
+
+        driveTime((float) 0.5, (float) 0.5, 500);
+
+        //robot.jewelArm.setPosition(0);
+        
+        telemetry.addData("done", "done");
+        updateTelemetry(telemetry);
+
+        wait(10000);
+        
+    }
+
+    private void wait(int time) {
+        try {
+            Thread.sleep(time);
+        }
+        catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    
+    private void setAll(float fl, float fr, float bl, float br) {
+        robot.frontLeft.setPower(fl);
+        robot.frontRight.setPower(fr);
+        robot.backLeft.setPower(bl);
+        robot.backRight.setPower(br);
+    }
+
+    private void driveTime(float l, float r,  int time) {
+        setAll(l, r, l, r);
+        wait(time);
+        setAll(0, 0, 0, 0);
+    }
+    
+    /*private void driveEncoder(int posL, int posR, double powerL, double powerR, boolean left) {
+        robot.frontLeft.setTargetPosition(robot.frontLeft.getCurrentPosition() + posL);
+        robot.frontRight.setTargetPosition(robot.frontRight.getCurrentPosition() + posR);
+        robot.backLeft.setTargetPosition(robot.backLeft.getCurrentPosition() + posL);
+        robot.backRight.setTargetPosition(robot.backRight.getCurrentPosition() + posR);
+
+        robot.frontLeft.setPower(powerL);
+        robot.frontRight.setPower(powerR);
+        robot.backLeft.setPower(powerL);
+        robot.backRight.setPower(powerR);
+
+        if (left) {
+            while(robot.backLeft.isBusy()) {
+                telemetry.addData("backLeft", robot.backLeft.getCurrentPosition());
+                telemetry.addData("backRight", robot.backRight.getCurrentPosition());
+                telemetry.addData("frontLeft", robot.frontLeft.getCurrentPosition());
+                telemetry.addData("frontRight", robot.frontRight.getCurrentPosition());
+                updateTelemetry(telemetry);
+            }
+        } else {
+            while(robot.backRight.isBusy()) {
+                telemetry.addData("backLeft", robot.backLeft.getCurrentPosition());
+                telemetry.addData("backRight", robot.backRight.getCurrentPosition());
+                telemetry.addData("frontLeft", robot.frontLeft.getCurrentPosition());
+                telemetry.addData("frontRight", robot.frontRight.getCurrentPosition());
+                updateTelemetry(telemetry);
+            }
+        }
+
+        robot.frontLeft.setPower(0);
+        robot.frontRight.setPower(0);
+        robot.backLeft.setPower(0);
+        robot.backRight.setPower(0);
+    }*/
+
+}

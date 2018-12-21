@@ -1,0 +1,49 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import android.graphics.Color;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+//import android.speech.tts.TextToSpeech;
+
+@Autonomous(name = "BlueRover", group = "finals")
+
+public class BlueRover extends LinearOpMode {
+    private Botbot robot = new Botbot();
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        robot.init(hardwareMap);
+        telemetry.addData("robot", "ready");
+        updateTelemetry(telemetry);
+        
+        waitForStart();
+        
+        telemetry.addData("red", robot.knockJewel(false));
+        
+        wait(1000);
+        
+        robot.driveTime(-0.5, -0.5, 600);
+        robot.driveTime(0.5, -0.5, 400);
+        robot.driveTime(-0.5, -0.5, 500);
+        
+        robot.intakeLeft.setPower(-1);
+        robot.intakeRight.setPower(-1);
+        
+        robot.wait(1000);
+        
+        robot.driveTime(0.2, 0.2, 1000);
+    }
+    
+    void wait(int time) {
+        try {
+            Thread.sleep(time);
+        }
+        catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
