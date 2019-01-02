@@ -17,7 +17,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
  *
  * This class is the hardware map of the robot.
  */
-public class Qbert
+public class QbertAuto
 {
     /* Public OpMode members. */
     public DcMotor one = null;
@@ -39,7 +39,7 @@ public class Qbert
     //private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public Qbert(){
+    public QbertAuto(){
 
     }
 
@@ -67,11 +67,14 @@ public class Qbert
 
         // Set all motors to run using encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
+        /*one.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        two.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        three.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        four.setMode(DcMotor.RunMode.RUN_TO_POSITION);*/
         one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         three.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

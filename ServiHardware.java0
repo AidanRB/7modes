@@ -17,7 +17,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
  *
  * This class is the hardware map of the robot.
  */
-public class Qbert
+public class ServiHardware
 {
     /* Public OpMode members. */
     public DcMotor one = null;
@@ -26,9 +26,9 @@ public class Qbert
     public DcMotor four = null;
     public DcMotor lift = null;
     public DcMotor arm = null;
-    public DcMotor slide = null;
+    public DcMotor spool = null;
+    public CRServo latch = null;
     public CRServo grab = null;
-    public CRServo hand = null;
     public BNO055IMU imu;
     public Orientation angles;
     public Acceleration gravity;
@@ -39,7 +39,7 @@ public class Qbert
     //private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public Qbert(){
+    public ServiHardware(){
 
     }
 
@@ -49,37 +49,38 @@ public class Qbert
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        one   = ahwMap.dcMotor.get("one");
-        two  = ahwMap.dcMotor.get("two");
-        three    = ahwMap.dcMotor.get("three");
-        four    = ahwMap.dcMotor.get("four");
+        one = ahwMap.dcMotor.get("one");
+        two = ahwMap.dcMotor.get("two");
+        three = ahwMap.dcMotor.get("three");
+        four = ahwMap.dcMotor.get("four");
         lift = ahwMap.dcMotor.get("lift");
         arm = ahwMap.dcMotor.get("arm");
-        slide = ahwMap.dcMotor.get("slide");
+        spool = ahwMap.dcMotor.get("spool");
+        latch = ahwMap.crservo.get("latch");
         grab = ahwMap.crservo.get("grab");
-        hand = ahwMap.crservo.get("hand");
-
+        
         // Set all motors to zero power
-        /*one.setPower(0);
+        one.setPower(0);
         two.setPower(0);
         three.setPower(0);
-        four.setPower(0);*/
-
+        four.setPower(0);
+        lift.setPower(0);
+        arm.setPower(0);
+        spool.setPower(0);
+        
         // Set all motors to run using encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        /*one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         three.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         four.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        spool.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -112,26 +113,4 @@ public class Qbert
         
         gravity = imu.getGravity();
     }
-
-
-    /***
-     *
-     * waitForTick implements a periodic delay. However, this acts like a metronome with a regular
-     * periodic tick.  This is used to compensate for varying processing times for each cycle.
-     * The function looks at the elapsed cycle time, and sleeps for the remaining time interval.
-     *
-     * @param periodMs  Length of wait cycle in mSec.
-     * @throws InterruptedException
-     */
-    /*public void waitForTick(long periodMs) throws InterruptedException {
-
-        long  remaining = periodMs - (long)period.milliseconds();
-
-        // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0)
-            Thread.sleep(remaining);
-
-        // Reset the cycle clock for the next pass.
-        period.reset();
-    }*/
 }
