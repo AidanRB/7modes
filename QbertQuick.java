@@ -190,7 +190,24 @@ public class QbertQuick extends OpMode {
         ltswitch = gamepad1.left_stick_button;
         rtswitch = gamepad1.right_stick_button;
         
+
+        // --- SPECIAL MOTORS ---
+        robot.arm.setPower(gamepad2.left_stick_y);
+        robot.slide.setPower(gamepad2.right_stick_y);
         
+        if(gamepad2.dpad_up) robot.lift.setPower(1);
+        else if(gamepad2.dpad_down) robot.lift.setPower(-1);
+        else robot.lift.setPower(0);
+        
+        if(gamepad2.dpad_left) robot.grab.setPower(1);
+        else if(gamepad2.dpad_right) robot.grab.setPower(-1);
+        else robot.grab.setPower(0);
+        
+        if(gamepad2.right_bumper) robot.hand.setPower(1);
+        else if(gamepad2.left_bumper) robot.hand.setPower(-1);
+        else robot.hand.setPower(0);
+
+
         // --- TELEMETRY ---
         telemetry.addData("fieldcentric (X to toggle)", fieldcentric);
         telemetry.addData("righteous (Y to toggle)", righteous);
@@ -217,20 +234,7 @@ public class QbertQuick extends OpMode {
             telemetry.addData("turn", turn*180);
         }
         
-        robot.arm.setPower(gamepad2.left_stick_y);
-        robot.slide.setPower(gamepad2.right_stick_y);
-        
-        if(gamepad2.dpad_up) robot.lift.setPower(1);
-        else if(gamepad2.dpad_down) robot.lift.setPower(-1);
-        else robot.lift.setPower(0);
-        
-        if(gamepad2.dpad_left) robot.grab.setPower(1);
-        else if(gamepad2.dpad_right) robot.grab.setPower(-1);
-        else robot.grab.setPower(0);
-        
-        if(gamepad2.right_bumper) robot.hand.setPower(1);
-        else if(gamepad2.left_bumper) robot.hand.setPower(-1);
-        else robot.hand.setPower(0);
+        telemetry.addData("lift position", robot.lift.getCurrentPosition());
         
         updateTelemetry(telemetry);
     }
