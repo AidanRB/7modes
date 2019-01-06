@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
@@ -63,7 +64,6 @@ public class QbertQuick extends OpMode {
     
     // Initialize variables
     double x,y,turn,r,theta,setangle,delta;
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -73,7 +73,6 @@ public class QbertQuick extends OpMode {
          * The init() method of the hardware class does all the work here
          */
         robot.init(hardwareMap);
-
         telemetry.addData("Robot", "ready");
     }
 
@@ -195,12 +194,12 @@ public class QbertQuick extends OpMode {
         robot.arm.setPower(gamepad2.left_stick_y);
         robot.slide.setPower(gamepad2.right_stick_y);
         
-        if(gamepad2.dpad_up) robot.lift.setPower(1);
-        else if(gamepad2.dpad_down) robot.lift.setPower(-1);
+        if(gamepad2.dpad_up) robot.lift.setPower(-1);
+        else if(gamepad2.dpad_down) robot.lift.setPower(1);
         else robot.lift.setPower(0);
         
-        if(gamepad2.dpad_left) robot.grab.setPower(1);
-        else if(gamepad2.dpad_right) robot.grab.setPower(-1);
+        if(gamepad2.dpad_left) robot.grab.setPower(-1);
+        else if(gamepad2.dpad_right) robot.grab.setPower(1);
         else robot.grab.setPower(0);
         
         if(gamepad2.right_bumper) robot.hand.setPower(1);

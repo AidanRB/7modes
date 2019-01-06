@@ -20,16 +20,28 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
-        telemetry.addData("current lift position", robot.lift.getCurrentPosition());
-        telemetry.update();
-        /*robot.lift.setTargetPosition(robot.lift.getCurrentPosition() - 10000);
+        robot.lift.setTargetPosition(robot.lift.getCurrentPosition() - 32000);
         robot.lift.setPower(100);
         while(robot.lift.isBusy()){}
-        robot.lift.setPower(0);
-        pause(1000);
-        driveForward(0.25, -5);
-        pause(1000);*/
-        turn(-50, 1);
+        //robot.lift.setPower(0);
+        
+        robot.grab.setPower(-1);
+        pause(2000);
+        robot.grab.setPower(0);
+        
+        robot.lift.setTargetPosition(robot.lift.getCurrentPosition() + 31500);
+        
+        driveBackward(0.7, 17);
+        pause(200);
+        driveRight(0.7, 38);
+        pause(200);
+        turnCounter(0.5, 45);
+        pause(200);
+        driveRight(0.7, 50);
+        pause(200);
+        robot.hand.setPower(1);
+        
+        while(robot.lift.isBusy()) {}
     }
     
     private void pause(long time) {
@@ -46,16 +58,97 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         robot.four.setPower(-speed);
         
         int initial = robot.one.getCurrentPosition();
+        while(robot.one.getCurrentPosition() < initial + distance*1075.2/3.1415/5) {
+            telemetry.addData("one", robot.one.getCurrentPosition());
+            telemetry.update();
+        }
+        stopWheels();
+    }
+    
+    private void driveBackward(double speed, double distance){
+        robot.one.setPower(-speed);
+        robot.two.setPower(-speed);
+        robot.three.setPower(speed);
+        robot.four.setPower(speed);
+        
+        int initial = robot.one.getCurrentPosition();
+        while(robot.one.getCurrentPosition() > initial - distance*1075.2/3.1415/5) {     
+            telemetry.addData("one", robot.one.getCurrentPosition());
+            telemetry.update();
+        }
+        stopWheels();
+    }
+
+    private void driveLeft(double speed, double distance){
+        robot.one.setPower(speed);
+        robot.two.setPower(-speed);
+        robot.three.setPower(-speed);
+        robot.four.setPower(speed);
+        
+        int initial = robot.one.getCurrentPosition();
         while(robot.one.getCurrentPosition() < initial + distance*1075.2/3.1415/5) {}
         stopWheels();
     }
     
-    private void turn(double speed, double angle) {
+    private void driveRight(double speed, double distance){
+        robot.one.setPower(-speed);
+        robot.two.setPower(speed);
+        robot.three.setPower(speed);
+        robot.four.setPower(-speed);
+        
+        int initial = robot.one.getCurrentPosition();
+        while(robot.one.getCurrentPosition() > initial - distance*1075.2/3.1415/5) {}
+        stopWheels();
+    }
+    
+    private void turnCounter(double speed, double angle) {
         robot.one.setPower(speed);
         robot.two.setPower(speed);
         robot.three.setPower(speed);
         robot.four.setPower(speed);
-        while(robot.angles.thirdAngle < robot.angles.thirdAngle - angle) {}
+        
+        robot.updateGyro(5);
+        angle -= 5;
+        double leeway = 40;
+        double current = robot.angles.thirdAngle;
+        
+        double lesser = current + angle;
+        double greater = current + angle + leeway;
+        if(greater < 180) {
+            while(current < lesser) {
+                robot.updateGyro(5);
+                current = robot.angles.thirdAngle;
+            }
+        }
+        else if(greater > 180 && lesser < 180)  {
+            greater = wrap(greater);
+            while(!(current > lesser || current < greater)) {
+                robot.updateGyro(5);
+                current = robot.angles.thirdAngle;
+            }
+        }
+        else if(lesser > 180) {
+            greater = wrap(greater);
+            lesser = wrap(lesser);
+            while(!(current > lesser && current < greater)) {
+                robot.updateGyro(5);
+                current = robot.angles.thirdAngle;
+            }
+        }
+        else {
+            telemetry.addData("","wat");
+            telemetry.update();
+            pause(30000);
+        }
+        
+        /*if(orig < -90) {
+            while(wrap(current)) {}
+        }
+        while(wrap(robot.angles.thirdAngle) > wrap(robot.angles.thirdAngle - angle)) {
+            robot.updateGyro(5);
+            telemetry.addData("angle", robot.angles.thirdAngle);
+            telemetry.update();
+        }*/
         stopWheels();
     }
     
@@ -66,7 +159,7 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         robot.four.setPower(0);
     }
     
-        private double wrap(double input) {
+    private double wrap(double input) {
         while(Math.abs(input) > 180) {
             if(input < -180) {
                 input += 360;
