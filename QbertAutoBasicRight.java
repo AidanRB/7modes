@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name="Basic Left", group="Basic")
+@Autonomous(name="Basic Right", group="Basic")
 
-public class QbertAutoBasicLeft extends LinearOpMode {
+public class QbertAutoBasicRight extends LinearOpMode {
     private Qbert robot = new Qbert();
     
     @Override
@@ -33,21 +33,8 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         
         driveBackward(0.7, 17); // away from lander
         pause(200);
-        driveRight(0.7, 18); // to side of field
-        pause(200);
-        driveBackward(0.7, 2); // knock off cube/whatever
-        pause(200);
-        driveRight(0.7, 18); // to side of field
-        pause(200);
-        turnCounter(0.5, 42); // to facing floor goal
-        pause(200);
-        driveRight(0.7, 50); // to floor goal
-        pause(200);
-        robot.hand.setPower(-1); // drop marker
-        pause(2000);
-        robot.hand.setPower(0);
-        driveLeft(0.7, 70); // 
         
+
         while(robot.lift.isBusy()) {}
     }
     

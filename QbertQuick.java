@@ -191,8 +191,8 @@ public class QbertQuick extends OpMode {
         
 
         // --- SPECIAL MOTORS ---
-        robot.arm.setPower(gamepad2.left_stick_y);
-        robot.slide.setPower(gamepad2.right_stick_y);
+        robot.arm.setPower(gamepad2.left_stick_y / 5);
+        robot.slide.setPower(gamepad2.right_stick_y / 3);
         
         if(gamepad2.dpad_up) robot.lift.setPower(-1);
         else if(gamepad2.dpad_down) robot.lift.setPower(1);
