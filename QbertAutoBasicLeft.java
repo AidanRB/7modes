@@ -26,27 +26,30 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         //robot.lift.setPower(0);
         
         robot.grab.setPower(-1);
-        pause(2000);
+        pause(1500);
         robot.grab.setPower(0);
         
-        robot.lift.setTargetPosition(robot.lift.getCurrentPosition() + 32000);
+        //robot.lift.setTargetPosition(robot.lift.getCurrentPosition() + 32000);
         
         driveBackward(0.7, 17); // away from lander
         pause(200);
         driveRight(0.7, 18); // to side of field
         pause(200);
-        driveBackward(0.7, 2); // knock off cube/whatever
+        driveBackward(0.7, 5); // knock off cube/whatever
         pause(200);
         driveRight(0.7, 18); // to side of field
         pause(200);
-        turnCounter(0.5, 42); // to facing floor goal
+        turnCounter(0.5, 48); // to facing floor goal
         pause(200);
-        driveRight(0.7, 50); // to floor goal
+        driveRight(0.7, 55); // to floor goal
         pause(200);
         robot.hand.setPower(-1); // drop marker
         pause(2000);
         robot.hand.setPower(0);
         driveLeft(0.7, 70); // 
+        robot.arm.setPower(-0.2);
+        pause(3000);
+        robot.arm.setPower(0);
         
         while(robot.lift.isBusy()) {}
     }
@@ -148,14 +151,6 @@ public class QbertAutoBasicLeft extends LinearOpMode {
             pause(30000);
         }
         
-        /*if(orig < -90) {
-            while(wrap(current)) {}
-        }
-        while(wrap(robot.angles.thirdAngle) > wrap(robot.angles.thirdAngle - angle)) {
-            robot.updateGyro(5);
-            telemetry.addData("angle", robot.angles.thirdAngle);
-            telemetry.update();
-        }*/
         stopWheels();
     }
     
