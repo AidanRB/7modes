@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -29,6 +30,7 @@ public class Qbert
     public DcMotor slide = null;
     public CRServo grab = null;
     public CRServo hand = null;
+    public Servo mark = null;
     public BNO055IMU imu;
     public Orientation angles;
     public Acceleration gravity;
@@ -58,6 +60,7 @@ public class Qbert
         slide = ahwMap.dcMotor.get("slide");
         grab = ahwMap.crservo.get("grab");
         hand = ahwMap.crservo.get("hand");
+        mark = ahwMap.servo.get("mark");
 
         // Set all motors to zero power
         /*one.setPower(0);
