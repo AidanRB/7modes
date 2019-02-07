@@ -29,7 +29,7 @@ public class QbertAutoBasicRight extends LinearOpMode {
         pause(2000);
         robot.grab.setPower(0);
         
-        //robot.lift.setTargetPosition(robot.lift.getCurrentPosition() + 32000);
+        robot.lift.setTargetPosition(robot.lift.getCurrentPosition() + 22000);
         
         driveBackward(0.7, 17); // away from lander
         pause(200);
