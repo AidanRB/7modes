@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.Range;
 
 /*
 ### OUTLINE OF CONCEPT ###
@@ -28,6 +28,7 @@ for angle in wheels:
 
 @TeleOp(name="QbertQuick", group="teleop")
 public class QbertQuick extends OpMode {
+    FtcDashboard dashboard = FtcDashboard.getInstance();
 
     /* Declare OpMode members. */
     private Qbert robot = new Qbert();
@@ -95,6 +96,8 @@ public class QbertQuick extends OpMode {
      */
     @Override
     public void loop() {
+        TelemetryPacket packet = new TelemetryPacket();
+
         robot.updateGyro(5);    // Obtain new gyro information
         currentAngle = robot.angles.thirdAngle;
         
@@ -196,7 +199,7 @@ public class QbertQuick extends OpMode {
         robot.slide.setPower(gamepad2.right_stick_y / 3);
         
         if(gamepad2.dpad_up) robot.lift.setPower(-1);
-        else if(gamepad2.dpad_down) robot.lift.setPower(1);
+        else if(gamepad2.dpad_down && robot.liftbutton.getState()) robot.lift.setPower(1);
         else robot.lift.setPower(0);
         
         if(gamepad2.dpad_left) robot.grab.setPower(-1);
@@ -208,13 +211,47 @@ public class QbertQuick extends OpMode {
         else robot.hand.setPower(0);
 
 
+        // --- DASHBOARD ---
+        packet.put("fieldcentric (X to toggle)", fieldcentric);
+        packet.put("righteous (Y to toggle)", righteous);
+        packet.put("speed (A/B +/-)", speed/10.0);
+
+        packet.put("", null);
+
+        packet.put("arm", gamepad2.left_stick_y);
+        packet.put("slide", gamepad2.right_stick_y);
+
+        packet.put("r", r);
+        packet.put("theta", theta);
+        for(int i = 0; i != wheels.length; i++) {
+            packet.put("wheel " + Integer.toString(i + 1) + " power", powers[i]);
+            packet.put("wheel " + Integer.toString(i + 1) + " position", encoders[i]);
+        }
+        if(fieldcentric || righteous || turning) {
+            packet.put("", null);
+            packet.put("angle", currentAngle);
+        }
+        if(fieldcentric) {
+            packet.put("zero", zero);
+        }
+        if(righteous || turning) {
+            packet.put("delta", delta);
+            packet.put("delta%180", delta%180);
+            packet.put("turn", turn*180);
+        }
+
+        packet.put("lift position", robot.lift.getCurrentPosition());
+
+        dashboard.sendTelemetryPacket(packet);
+
+
         // --- TELEMETRY ---
         telemetry.addData("fieldcentric (X to toggle)", fieldcentric);
         telemetry.addData("righteous (Y to toggle)", righteous);
         telemetry.addData("speed (A/B +/-)", speed);
-        
+
         telemetry.addData("", null);
-        
+
         telemetry.addData("r", r);
         telemetry.addData("theta", theta);
         for(int i = 0; i != wheels.length; i++) {
@@ -229,13 +266,13 @@ public class QbertQuick extends OpMode {
             telemetry.addData("zero", zero);
         }
         if(righteous || turning) {
-            telemetry.addData("delta", delta);              
+            telemetry.addData("delta", delta);
             telemetry.addData("delta%180", delta%180);
             telemetry.addData("turn", turn*180);
         }
-        
+
         telemetry.addData("lift position", robot.lift.getCurrentPosition());
-        
+
         updateTelemetry(telemetry);
     }
 

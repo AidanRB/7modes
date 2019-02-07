@@ -1,17 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * This is NOT an opmode.
@@ -31,6 +32,7 @@ public class Qbert
     public CRServo grab = null;
     public CRServo hand = null;
     public Servo mark = null;
+    public DigitalChannel liftbutton = null;
     public BNO055IMU imu;
     public Orientation angles;
     public Acceleration gravity;
@@ -51,6 +53,18 @@ public class Qbert
         hwMap = ahwMap;
 
         // Define and Initialize Motors
+        /*one = ahwMap.DcMotor.get("one");
+        two = ahwMap.DcMotor.get("two");
+        three = ahwMap.DcMotor.get("three");
+        four = ahwMap.DcMotor.get("four");
+        lift = ahwMap.DcMotor.get("lift");
+        arm = ahwMap.DcMotor.get("arm");
+        slide = ahwMap.DcMotor.get("slide");
+        grab = ahwMap.CRServo.get("grab");
+        hand = ahwMap.CRServo.get("hand");
+        mark = ahwMap.Servo.get("mark");
+        liftbutton = hwMap.get(DigitalChannel.class, "liftbutton");*/
+
         one   = ahwMap.dcMotor.get("one");
         two  = ahwMap.dcMotor.get("two");
         three    = ahwMap.dcMotor.get("three");
@@ -61,6 +75,8 @@ public class Qbert
         grab = ahwMap.crservo.get("grab");
         hand = ahwMap.crservo.get("hand");
         mark = ahwMap.servo.get("mark");
+        liftbutton = ahwMap.digitalChannel.get("liftbutton");
+
 
         // Set all motors to zero power
         /*one.setPower(0);
