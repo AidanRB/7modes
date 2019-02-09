@@ -68,8 +68,9 @@ public class QbertQuick extends OpMode {
     double x, y, turn, r, theta, setangle, delta;
 
     // Automatic lift variables
-    boolean liftinit = true;
-    int liftzero = 0;
+    boolean liftinit = true;        // if lift is running to the bottom at start
+    boolean liftdown = true;        // if lift is running to the bottom otherwise
+    int liftzero = 0;               // the bottom, in encoder clicks
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -212,20 +213,46 @@ public class QbertQuick extends OpMode {
 
         if (liftinit) {
             if (robot.liftbutton.getState()) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setPower(1);
             }
             else {
                 liftzero = robot.lift.getCurrentPosition();
                 liftinit = false;
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setTargetPosition(liftzero);
             }
         }
         else {
             if (gamepad2.dpad_down) {
-                robot.lift.setTargetPosition(liftzero);
+                //robot.lift.setTargetPosition(liftzero);
+                liftdown = true;
             }
             if (gamepad2.dpad_up) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift.setTargetPosition(liftzero - 22000);
+                liftdown = false;
+            }
+            else if(liftdown) {
+                if(robot.liftbutton.getState()) {
+                    robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.lift.setPower(1);
+                }
+                else {
+                    liftzero = robot.lift.getCurrentPosition();
+                    liftdown = false;
+                    robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.lift.setTargetPosition(liftzero);
+                }
+            }
+        }
+
+        if(!(liftdown || liftinit)) {
+            if (robot.lift.isBusy()) {
+                robot.lift.setPower(1);
+            }
+            else {
+                robot.lift.setPower(0);
             }
         }
 
