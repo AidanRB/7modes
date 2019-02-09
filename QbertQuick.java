@@ -31,6 +31,8 @@ for angle in wheels:
 public class QbertQuick extends OpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
+    private Lift lift;
+
     /* Declare OpMode members. */
     private Qbert robot = new Qbert();
     // Defines wheel positions
@@ -67,11 +69,6 @@ public class QbertQuick extends OpMode {
     // Initialize variables
     double x, y, turn, r, theta, setangle, delta;
 
-    // Automatic lift variables
-    boolean liftinit = true;        // if lift is running to the bottom at start
-    boolean liftdown = true;        // if lift is running to the bottom otherwise
-    int liftzero = 0;               // the bottom, in encoder clicks
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -81,6 +78,7 @@ public class QbertQuick extends OpMode {
          * The init() method of the hardware class does all the work here
          */
         robot.init(hardwareMap);
+        lift = new Lift(robot.lift);
         telemetry.addData("Robot", "ready");
     }
 
@@ -211,50 +209,10 @@ public class QbertQuick extends OpMode {
         else if(gamepad2.dpad_down && robot.liftbutton.getState()) robot.lift.setPower(1);
         else robot.lift.setPower(0);*/
 
-        if (liftinit) {
-            if (robot.liftbutton.getState()) {
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.lift.setPower(1);
-            }
-            else {
-                liftzero = robot.lift.getCurrentPosition();
-                liftinit = false;
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setTargetPosition(liftzero);
-            }
-        }
-        else {
-            if (gamepad2.dpad_down) {
-                //robot.lift.setTargetPosition(liftzero);
-                liftdown = true;
-            }
-            if (gamepad2.dpad_up) {
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setTargetPosition(liftzero - 22000);
-                liftdown = false;
-            }
-            else if(liftdown) {
-                if(robot.liftbutton.getState()) {
-                    robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    robot.lift.setPower(1);
-                }
-                else {
-                    liftzero = robot.lift.getCurrentPosition();
-                    liftdown = false;
-                    robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.lift.setTargetPosition(liftzero);
-                }
-            }
-        }
+        if(gamepad2.dpad_down) lift.down();
+        if(gamepad2.dpad_up) lift.up(22000);
+        lift.check(!robot.liftbutton.getState());
 
-        if(!(liftdown || liftinit)) {
-            if (robot.lift.isBusy()) {
-                robot.lift.setPower(1);
-            }
-            else {
-                robot.lift.setPower(0);
-            }
-        }
 
         if (gamepad2.dpad_left) robot.grab.setPower(-1);
         else if (gamepad2.dpad_right) robot.grab.setPower(1);
@@ -349,3 +307,101 @@ public class QbertQuick extends OpMode {
         return input;
     }
 }
+
+class Lift {
+    DcMotor lift;
+    // Automatic lift variables
+    boolean liftinit = true;        // if lift is running to the bottom at start
+    boolean liftdown = true;        // if lift is running to the bottom otherwise
+    int liftzero = 0;               // the bottom, in encoder clicks
+
+
+    Lift(DcMotor liftmotor) {
+        lift = liftmotor;
+    }
+
+    public void down() {
+        if(!liftinit) {
+            liftdown = true;
+        }
+    }
+
+    public void up(int top) {
+        if(!liftinit) {
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setPower(1);
+            lift.setTargetPosition(liftzero - 22000);
+            liftdown = false;
+        }
+    }
+
+    public void check(boolean pressed) {
+        if(liftinit) runDown(pressed);
+        else {
+            if(liftdown) {
+                runDown(pressed);
+            }
+        }
+    }
+
+    private void runDown(boolean pressed) {
+        if (!pressed) {
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setPower(1);
+        }
+        else {
+            liftzero = lift.getCurrentPosition();
+            liftinit = false;
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setTargetPosition(liftzero);
+        }
+    }
+}
+
+/*
+        if (liftinit) {         // if the lift is uninterruptably running down at start
+            if (robot.liftbutton.getState()) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lift.setPower(1);
+            }
+            else {
+                liftzero = robot.lift.getCurrentPosition();
+                liftinit = false;
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setTargetPosition(liftzero);
+            }
+        }
+        else {
+            if (gamepad2.dpad_down) {
+                //robot.lift.setTargetPosition(liftzero);
+                liftdown = true;
+            }
+            if (gamepad2.dpad_up) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setTargetPosition(liftzero - 22000);
+                liftdown = false;
+            }
+            else if (liftdown) {
+                if (robot.liftbutton.getState()) {
+                    robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.lift.setPower(1);
+                }
+                else {
+                    liftzero = robot.lift.getCurrentPosition();
+                    liftdown = false;
+                    robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.lift.setTargetPosition(liftzero);
+                }
+            }
+        }
+
+        if (!(liftdown || liftinit)) {
+            if (robot.lift.isBusy()) {
+                robot.lift.setPower(1);
+            }
+            else {
+                robot.lift.setPower(0);
+            }
+        }
+
+ */
