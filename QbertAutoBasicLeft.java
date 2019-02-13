@@ -21,7 +21,7 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         robot.mark.setPosition(0.7);
         // run until the end of the match (driver presses STOP)
         robot.lift.setTargetPosition(robot.lift.getCurrentPosition() - 22000);
-        robot.lift.setPower(100);
+        robot.lift.setPower(1);
         while(robot.lift.isBusy()){}
         //robot.lift.setPower(0);
         
