@@ -72,13 +72,14 @@ public class TFautoLeft extends OpMode {
                         else {
                             silverMineral2X = (int) recognition.getLeft();
                         }
-                        if(recognition.getTop() > 200 && recognition.getLabel() == LABEL_GOLD_MINERAL) {
+
+                        if(recognition.getTop() > 300 && recognition.getLabel() == LABEL_GOLD_MINERAL) {
                             telemetry.addData(recognition.getLabel(), "left, top, conf = %.0f, %.0f, %.2f", recognition.getLeft(), recognition.getTop(), recognition.getConfidence());
                             //packet.put(recognition.getLabel(), "left, top, conf = %.0f, %.0f, %.2f", recognition.getLeft(), recognition.getTop(), recognition.getConfidence());
                             packet.put(String.format("%s %d left", recognition.getLabel(), i), recognition.getLeft());
                             packet.put(String.format("%s %d top", recognition.getLabel(), i), recognition.getTop());
                             packet.put(String.format("%s %d confidence", recognition.getLabel(), i), recognition.getConfidence());
-                            if(recognition.getConfidence() > 0.8) {
+                            if(recognition.getConfidence() > 0.7) {
                                 if(recognition.getLeft() > 600) {
                                     goldPosition = "right";
                                 }
@@ -92,28 +93,49 @@ public class TFautoLeft extends OpMode {
 
                         i++;
                     }
+                    packet.put("mineral position", goldPosition);
+                    telemetry.addData("mineral position", goldPosition);
                 }
                 telemetry.update();
+                dashboard.sendTelemetryPacket(packet);
             }
         }
     }
 
     public void start() {
-        turn(90);
         // Lower and let go
-        robot.mark.setPosition(0.7);
+        robot.mark.setPosition(0.0);
         robot.lift.setTargetPosition(robot.lift.getCurrentPosition() - 22000);
-        while(robot.lift.isBusy()) {
-        }
+        robot.lift.setPower(1);
+        while(robot.lift.isBusy()) {  }
         robot.grab.setPower(-1);
         pause(2000);
         robot.grab.setPower(0);
+
+        driveBackward(0.7, 6);
+        switch(goldPosition) {
+            case "middle":
+                driveBackward(0.7, 12);
+                driveForward(0.7, 12);
+                break;
+            case "left":
+                turn(-45);
+                driveBackward(0.7, 12);
+                driveForward(0.7, 12);
+                break;
+            case "right":
+                turn(-45);
+                driveBackward(0.7, 12);
+                driveForward(0.7, 12);
+                break;
+        }
     }
 
     public void loop() {
     }
 
     public void stop() {
+        stopWheels();
         tfod.shutdown();
     }
 
@@ -235,9 +257,7 @@ public class TFautoLeft extends OpMode {
             packet.put("turn", turn);
             dashboard.sendTelemetryPacket(packet);
             turn = -wrap(currentAngle - setangle) / 180;     // Get needed correction
-            /*else {                                          // If manually turning:
-                setangle = currentAngle;             // Set return angle
-            }*/
+            turn *= 1.5;
             if(Math.abs(turn) < 0.05)
                 turn = 0;                 // don't bother if you're super close
             if(turn < 0.15 && turn >0.05) turn = 0.15;         // if .05-.15, use .15 power
