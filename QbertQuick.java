@@ -210,7 +210,7 @@ public class QbertQuick extends OpMode {
         else robot.lift.setPower(0);*/
 
         if(gamepad2.dpad_down) lift.down();
-        if(gamepad2.dpad_up) lift.up(22000);
+        if(gamepad2.dpad_up) lift.up(16500);
         lift.check(!robot.liftbutton.getState());
 
 
@@ -330,7 +330,7 @@ class Lift {
         if(!liftinit) {
             lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift.setPower(1);
-            lift.setTargetPosition(liftzero - 22000);
+            lift.setTargetPosition(liftzero - top);
             liftdown = false;
         }
     }
