@@ -204,10 +204,6 @@ public class QbertQuick extends OpMode {
         if (!gamepad2.left_stick_button) robot.arm.setPower(gamepad2.left_stick_y / 4);
         else robot.arm.setPower(gamepad2.left_stick_y);
         robot.slide.setPower(gamepad2.right_stick_y / 3);
-        
-        /*if(gamepad2.dpad_up) robot.lift.setPower(-1);
-        else if(gamepad2.dpad_down && robot.liftbutton.getState()) robot.lift.setPower(1);
-        else robot.lift.setPower(0);*/
 
         if(gamepad2.dpad_down) lift.down();
         if(gamepad2.dpad_up) lift.up(16500);
