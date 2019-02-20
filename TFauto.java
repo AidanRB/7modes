@@ -110,9 +110,9 @@ public class TFauto extends LinearOpMode {
         robot.grab.setPower(0);
 
         double speed = 0.8;
-        double middledist = 15;
+        double middledist = 18;
         double sidedist = 23;
-        double sideturn = 40;
+        double sideturn = 35;
         long pausetime = 300;
         driveBackward(speed, 1);
         turnAbs(0);
