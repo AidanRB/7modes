@@ -352,6 +352,7 @@ class Lift {
         else {
             liftzero = lift.getCurrentPosition();
             liftinit = false;
+            liftdown = false;
             lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift.setTargetPosition(liftzero);
         }
