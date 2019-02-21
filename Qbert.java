@@ -27,20 +27,20 @@ public class Qbert
     public DcMotor three = null;
     public DcMotor four = null;
     public DcMotor lift = null;
-    public DcMotor arm = null;
-    public DcMotor slide = null;
-    public CRServo grab = null;
-    public CRServo hand = null;
-    public Servo mark = null;
+    public CRServo latch = null;
     public DigitalChannel liftbutton = null;
+    public Servo mark = null;
+    public DcMotor intakearm = null;
+    public DcMotor intake = null;
+    public DcMotor scoringarm = null;
+    public Servo scoring = null;
     public BNO055IMU imu;
     public Orientation angles;
     public Acceleration gravity;
     public float dangles[] = new float[3];
 
     /* local OpMode members. */
-    HardwareMap hwMap           =  null;
-    //private ElapsedTime period  = new ElapsedTime();
+    HardwareMap hwMap = null;
 
     /* Constructor */
     public Qbert(){
@@ -52,37 +52,20 @@ public class Qbert
         // Save reference to Hardware map
         hwMap = ahwMap;
 
-        // Define and Initialize Motors
-        /*one = ahwMap.DcMotor.get("one");
-        two = ahwMap.DcMotor.get("two");
-        three = ahwMap.DcMotor.get("three");
-        four = ahwMap.DcMotor.get("four");
-        lift = ahwMap.DcMotor.get("lift");
-        arm = ahwMap.DcMotor.get("arm");
-        slide = ahwMap.DcMotor.get("slide");
-        grab = ahwMap.CRServo.get("grab");
-        hand = ahwMap.CRServo.get("hand");
-        mark = ahwMap.Servo.get("mark");
-        liftbutton = hwMap.get(DigitalChannel.class, "liftbutton");*/
-
-        one   = ahwMap.dcMotor.get("one");
-        two  = ahwMap.dcMotor.get("two");
-        three    = ahwMap.dcMotor.get("three");
-        four    = ahwMap.dcMotor.get("four");
+        one = ahwMap.dcMotor.get("one");
+        two = ahwMap.dcMotor.get("two");
+        three = ahwMap.dcMotor.get("three");
+        four = ahwMap.dcMotor.get("four");
         lift = ahwMap.dcMotor.get("lift");
-        arm = ahwMap.dcMotor.get("arm");
-        slide = ahwMap.dcMotor.get("slide");
-        grab = ahwMap.crservo.get("grab");
-        hand = ahwMap.crservo.get("hand");
-        mark = ahwMap.servo.get("mark");
         liftbutton = ahwMap.digitalChannel.get("liftbutton");
+        latch = ahwMap.crservo.get("latch");
+        mark = ahwMap.servo.get("mark");
+        intakearm = ahwMap.dcMotor.get("intakearm");
+        intake = ahwMap.dcMotor.get("intake");
+        scoringarm = ahwMap.dcMotor.get("scoringarm");
+        scoring = ahwMap.servo.get("scoring");
 
 
-        // Set all motors to zero power
-        /*one.setPower(0);
-        two.setPower(0);
-        three.setPower(0);
-        four.setPower(0);*/
 
         // Set all motors to run using encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -91,15 +74,17 @@ public class Qbert
         three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         four.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakearm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scoringarm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         one.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         two.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         three.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         four.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakearm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        scoringarm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;

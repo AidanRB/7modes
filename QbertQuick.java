@@ -104,7 +104,7 @@ public class QbertQuick extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
 
         robot.updateGyro(5);    // Obtain new gyro information
-        currentAngle = robot.angles.thirdAngle;
+        currentAngle = robot.angles.secondAngle;
 
 
         // --- GAMEPAD INPUT ---
@@ -119,27 +119,27 @@ public class QbertQuick extends OpMode {
 
 
         // --- DRIVE MODES ---
-        if (speed == 11 && r != 0.0) {
+        if(speed == 11 && r != 0.0) {
             r = 1.0;
         }
-        if (fieldcentric) {                                              // If field-centric:
+        if(fieldcentric) {                                              // If field-centric:
             theta += Math.toRadians(currentAngle - zero);    // Compensate direction for gyro
         }
-        if (righteous || turning) {                      // If self-righting or turning:
-            if (turn == 0.0) {                               // If not manually turning:
+        if(righteous || turning) {                      // If self-righting or turning:
+            if(turn == 0.0) {                               // If not manually turning:
                 delta = currentAngle - setangle;     // Get needed correction
                 turn = -wrap(delta) / 180;                       // Set turn to correction
             }
             else {                                          // If manually turning:
                 setangle = currentAngle;             // Set return angle
             }
-            if (Math.abs(turn) < 0.05)
+            if(Math.abs(turn) < 0.05)
                 turn = 0;                 // don't bother if you're super close
-            if (turn < 0.15 && turn > 0.05) turn = 0.15;         // if .05-.15, use .15 power
-            if (turn > -0.15 && turn < -0.05)
+            if(turn < 0.15 && turn > 0.05) turn = 0.15;         // if .05-.15, use .15 power
+            if(turn > -0.15 && turn < -0.05)
                 turn = -0.15;      // ditto for negative; avoids squeeking
         }
-        if (turning && turn == 0) {      // If it was turning and finished:
+        if(turning && turn == 0) {      // If it was turning and finished:
             turning = false;                // Stop turning
         }
 
@@ -147,7 +147,7 @@ public class QbertQuick extends OpMode {
         // --- WHEEL POWERS ---
         r = r * r * r;                                  // Curve the speed exponentially
         r = r * speed / 10.0;                         // Adjust the translation speed
-        for (int i = 0; i != wheels.length; i++) {                   // For all the wheels:
+        for(int i = 0; i != wheels.length; i++) {                   // For all the wheels:
             powers[i] = (Math.sin(wheels[i] - theta) * r) + turn;  // calculate the desired speed
             // sin(wheel direction - desired direction finds speed), *r accounts
             // for joystick speed, +turn adds in turning with joystick/self
@@ -163,31 +163,31 @@ public class QbertQuick extends OpMode {
 
 
         // --- DRIVE MODE CONTROLS ---
-        if (gamepad1.start) { // If start is pushed:
+        if(gamepad1.start) { // If start is pushed:
             zero = currentAngle;             // Reset forwards for field-centric
         }
-        else if (!fcswitch && gamepad1.x) {              // Otherwise, if X is pushed:
+        else if(!fcswitch && gamepad1.x) {              // Otherwise, if X is pushed:
             fieldcentric = !fieldcentric;               // Toggle field-centric
         }
-        if (!rgswitch && gamepad1.y) {       // If Y is pushed:
+        if(!rgswitch && gamepad1.y) {       // If Y is pushed:
             righteous = !righteous;                 // Toggle self-righting
             setangle = currentAngle;     // Set return angle
         }
-        if (!slswitch && gamepad1.b && speed > 1) {      // If B is pushed and speed over 1:
+        if(!slswitch && gamepad1.b && speed > 1) {      // If B is pushed and speed over 1:
             speed -= 1;                                 // decrease speed
         }
-        if (!fsswitch && gamepad1.a && speed < 10) {     // If A is pushed and speed under 10:
+        if(!fsswitch && gamepad1.a && speed < 10) {     // If A is pushed and speed under 10:
             speed += 1;                                 // increase speed
         }
-        if (!fsswitch && gamepad1.b && gamepad1.a && speed == 10) {
+        if(!fsswitch && gamepad1.b && gamepad1.a && speed == 10) {
             speed = 11;
         }
 
-        if (!ltswitch && gamepad1.right_stick_button) {                        // If back is pressed:
+        if(!ltswitch && gamepad1.right_stick_button) {                        // If back is pressed:
             setangle = wrap(currentAngle + 90);      // Set desired angle to current +90
             turning = true;                                     // Set to turning
         }
-        if (!rtswitch && gamepad1.left_stick_button) {                       // If start is pressed:
+        if(!rtswitch && gamepad1.left_stick_button) {                       // If start is pressed:
             setangle = wrap(currentAngle - 90);      // Set desired angle to current -90
             turning = true;                                     // Set to turning
         }
@@ -201,23 +201,35 @@ public class QbertQuick extends OpMode {
 
 
         // --- SPECIAL MOTORS ---
-        if (!gamepad2.left_stick_button) robot.arm.setPower(gamepad2.left_stick_y / 4);
+        /*if (!gamepad2.left_stick_button) robot.arm.setPower(gamepad2.left_stick_y / 4);
         else robot.arm.setPower(gamepad2.left_stick_y);
         robot.slide.setPower(gamepad2.right_stick_y / 3);
+
+        if (gamepad2.right_bumper) robot.hand.setPower(1);
+        else if (gamepad2.left_bumper) robot.hand.setPower(-1);
+        else robot.hand.setPower(0);*/
 
         if(gamepad2.dpad_down) lift.down();
         if(gamepad2.dpad_up) lift.up(16500);
         lift.check(!robot.liftbutton.getState());
 
+        if(gamepad2.dpad_left) robot.latch.setPower(-1);
+        else if(gamepad2.dpad_right) robot.latch.setPower(1);
+        else robot.latch.setPower(0);
 
-        if (gamepad2.dpad_left) robot.grab.setPower(-1);
-        else if (gamepad2.dpad_right) robot.grab.setPower(1);
-        else robot.grab.setPower(0);
+        if(gamepad2.right_trigger > 0 && gamepad2.left_trigger > 0) // if both are pressed:
+            robot.intake.setPower(-(gamepad2.left_trigger + gamepad2.left_trigger) / 10);   // run -
+        else if(gamepad2.right_trigger > robot.intake.getPower())   // if right is pressed
+            robot.intake.setPower(gamepad2.right_trigger);  // run forward
+        else if(gamepad2.right_trigger > 0) // if left is pressed
+            robot.intake.setPower(0);   // stop
 
-        if (gamepad2.right_bumper) robot.hand.setPower(1);
-        else if (gamepad2.left_bumper) robot.hand.setPower(-1);
-        else robot.hand.setPower(0);
-
+        robot.intakearm.setPower(gamepad2.left_stick_y);
+        robot.scoringarm.setPower(gamepad2.right_stick_y);
+        robot.intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+        if(gamepad2.right_bumper) robot.scoring.setPosition(1);
+        else if(gamepad2.left_bumper) robot.scoring.setPosition(0);
+        //else robot.scoring.setPower(0);
 
         // --- DASHBOARD ---
         packet.put("fieldcentric (X to toggle)", fieldcentric);
@@ -231,18 +243,18 @@ public class QbertQuick extends OpMode {
 
         packet.put("r", r);
         packet.put("theta", theta);
-        for (int i = 0; i != wheels.length; i++) {
+        for(int i = 0; i != wheels.length; i++) {
             packet.put("wheel " + Integer.toString(i + 1) + " power", powers[i]);
             packet.put("wheel " + Integer.toString(i + 1) + " position", encoders[i]);
         }
-        if (fieldcentric || righteous || turning) {
+        if(fieldcentric || righteous || turning) {
             packet.put("", null);
             packet.put("angle", currentAngle);
         }
-        if (fieldcentric) {
+        if(fieldcentric) {
             packet.put("zero", zero);
         }
-        if (righteous || turning) {
+        if(righteous || turning) {
             packet.put("delta", delta);
             packet.put("delta%180", delta % 180);
             packet.put("turn", turn * 180);
@@ -262,18 +274,18 @@ public class QbertQuick extends OpMode {
 
         telemetry.addData("r", r);
         telemetry.addData("theta", theta);
-        for (int i = 0; i != wheels.length; i++) {
+        for(int i = 0; i != wheels.length; i++) {
             telemetry.addData("wheel " + Integer.toString(i + 1) + " power", powers[i]);
             telemetry.addData("wheel " + Integer.toString(i + 1) + " position", encoders[i]);
         }
-        if (fieldcentric || righteous || turning) {
+        if(fieldcentric || righteous || turning) {
             telemetry.addData("", null);
             telemetry.addData("angle", currentAngle);
         }
-        if (fieldcentric) {
+        if(fieldcentric) {
             telemetry.addData("zero", zero);
         }
-        if (righteous || turning) {
+        if(righteous || turning) {
             telemetry.addData("delta", delta);
             telemetry.addData("delta%180", delta % 180);
             telemetry.addData("turn", turn * 180);
@@ -292,8 +304,8 @@ public class QbertQuick extends OpMode {
     }
 
     private double wrap(double input) {
-        while (Math.abs(input) > 180) {
-            if (input < -180) {
+        while(Math.abs(input) > 180) {
+            if(input < -180) {
                 input += 360;
             }
             else {
@@ -341,7 +353,7 @@ class Lift {
     }
 
     private void runDown(boolean pressed) {
-        if (!pressed) {
+        if(!pressed) {
             lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             lift.setPower(1);
         }

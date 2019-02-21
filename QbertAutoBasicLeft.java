@@ -25,9 +25,9 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         while(robot.lift.isBusy()){}
         //robot.lift.setPower(0);
         
-        robot.grab.setPower(-1);
+        robot.latch.setPower(-1);
         pause(2000);
-        robot.grab.setPower(0);
+        robot.latch.setPower(0);
         
         //robot.lift.setTargetPosition(robot.lift.getCurrentPosition() + 16500);
         
@@ -48,10 +48,7 @@ public class QbertAutoBasicLeft extends LinearOpMode {
         pause(2000);
         //robot.hand.setPower(0);
         driveLeft(0.7, 70); // 
-        robot.arm.setPower(-0.2);
-        pause(3000);
-        robot.arm.setPower(0);
-        
+
         while(robot.lift.isBusy()) {}
     }
     

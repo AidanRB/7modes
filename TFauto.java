@@ -105,9 +105,9 @@ public class TFauto extends LinearOpMode {
         while(robot.lift.isBusy()) {
             opModeIsActive();
         }
-        robot.grab.setPower(-1);
+        robot.latch.setPower(-1);
         pause(2000);
-        robot.grab.setPower(0);
+        robot.latch.setPower(0);
 
         double speed = 0.8;
         double middledist = 18;
