@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -29,6 +30,8 @@ public class Qbert
     public DcMotor lift = null;
     public CRServo latch = null;
     public DigitalChannel liftbutton = null;
+    public DigitalChannel scoringbutton = null;
+    public DigitalChannel intakebutton = null;
     public Servo mark = null;
     public DcMotor intakearm = null;
     public DcMotor intake = null;
@@ -58,6 +61,8 @@ public class Qbert
         four = ahwMap.dcMotor.get("four");
         lift = ahwMap.dcMotor.get("lift");
         liftbutton = ahwMap.digitalChannel.get("liftbutton");
+        scoringbutton = ahwMap.digitalChannel.get("scoringbutton");
+        intakebutton = ahwMap.digitalChannel.get("intakebutton");
         latch = ahwMap.crservo.get("latch");
         mark = ahwMap.servo.get("mark");
         intakearm = ahwMap.dcMotor.get("intakearm");
@@ -65,10 +70,6 @@ public class Qbert
         scoringarm = ahwMap.dcMotor.get("scoringarm");
         scoring = ahwMap.servo.get("scoring");
 
-
-
-        // Set all motors to run using encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
         one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         three.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -86,6 +87,8 @@ public class Qbert
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         scoringarm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        //intakearm.setDirection(DcMotorSimple.Direction.REVERSE);
+
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -94,7 +97,7 @@ public class Qbert
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         
-        imu = ahwMap.get(BNO055IMU.class, "imu");
+        imu = ahwMap.get(BNO055IMU.class, "imu 1");
         imu.initialize(parameters);
         
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);

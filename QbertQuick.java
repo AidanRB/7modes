@@ -32,7 +32,9 @@ public class QbertQuick extends OpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
     private Lift lift;
-
+    private ScoringArm scoringarm;
+    private double intakespeed = 0;
+    private double armx = 1;
     /* Declare OpMode members. */
     private Qbert robot = new Qbert();
     // Defines wheel positions
@@ -79,6 +81,7 @@ public class QbertQuick extends OpMode {
          */
         robot.init(hardwareMap);
         lift = new Lift(robot.lift);
+        scoringarm = new ScoringArm(robot.scoringarm);
         telemetry.addData("Robot", "ready");
     }
 
@@ -104,7 +107,7 @@ public class QbertQuick extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
 
         robot.updateGyro(5);    // Obtain new gyro information
-        currentAngle = robot.angles.secondAngle;
+        currentAngle = robot.angles.firstAngle;
 
 
         // --- GAMEPAD INPUT ---
@@ -147,6 +150,7 @@ public class QbertQuick extends OpMode {
         // --- WHEEL POWERS ---
         r = r * r * r;                                  // Curve the speed exponentially
         r = r * speed / 10.0;                         // Adjust the translation speed
+        turn = turn * speed;
         for(int i = 0; i != wheels.length; i++) {                   // For all the wheels:
             powers[i] = (Math.sin(wheels[i] - theta) * r) + turn;  // calculate the desired speed
             // sin(wheel direction - desired direction finds speed), *r accounts
@@ -201,35 +205,58 @@ public class QbertQuick extends OpMode {
 
 
         // --- SPECIAL MOTORS ---
-        /*if (!gamepad2.left_stick_button) robot.arm.setPower(gamepad2.left_stick_y / 4);
-        else robot.arm.setPower(gamepad2.left_stick_y);
-        robot.slide.setPower(gamepad2.right_stick_y / 3);
 
-        if (gamepad2.right_bumper) robot.hand.setPower(1);
-        else if (gamepad2.left_bumper) robot.hand.setPower(-1);
-        else robot.hand.setPower(0);*/
-
-        if(gamepad2.dpad_down) lift.down();
-        if(gamepad2.dpad_up) lift.up(16500);
+        if(gamepad2.dpad_down) lift.down(1);
+        if(gamepad2.dpad_up) lift.up(16500, 1);
         lift.check(!robot.liftbutton.getState());
 
         if(gamepad2.dpad_left) robot.latch.setPower(-1);
         else if(gamepad2.dpad_right) robot.latch.setPower(1);
         else robot.latch.setPower(0);
 
-        if(gamepad2.right_trigger > 0 && gamepad2.left_trigger > 0) // if both are pressed:
-            robot.intake.setPower(-(gamepad2.left_trigger + gamepad2.left_trigger) / 10);   // run -
-        else if(gamepad2.right_trigger > robot.intake.getPower())   // if right is pressed
-            robot.intake.setPower(gamepad2.right_trigger);  // run forward
+        /*if(gamepad2.right_trigger > 0 && gamepad2.left_trigger > 0) // if both are pressed:
+            robot.intake.setPower(-(gamepad2.left_trigger + gamepad2.left_trigger) / 2);   // run -
+        else if(gamepad2.right_trigger > intakespeed) {  // if right is pressed
+            intakespeed = gamepad2.right_trigger;
+            robot.intake.setPower(intakespeed);  // run forward
+        }
         else if(gamepad2.right_trigger > 0) // if left is pressed
-            robot.intake.setPower(0);   // stop
+            robot.intake.setPower(0);   // stop*/
 
-        robot.intakearm.setPower(gamepad2.left_stick_y);
-        robot.scoringarm.setPower(gamepad2.right_stick_y);
         robot.intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+
+        // if the arm is all the way in and trying to go in, kill and reset it
+        if(gamepad2.left_stick_y > 0 && !robot.intakebutton.getState()) {
+            robot.intakearm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        else {
+            robot.intakearm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        // if the arm is all the way out and trying to go out, just kill it
+        if(gamepad2.left_stick_y < 0 && robot.intakearm.getCurrentPosition() < -2900) {
+            armx = 0;
+        }
+        else if(robot.intakearm.getCurrentPosition() > -800) {
+            armx = 0.4;
+        }
+        else if(robot.intakearm.getCurrentPosition() < -2600 && gamepad2.left_stick_y < 0) {
+            armx = 0.6;
+        }
+        else {
+            armx = 1;
+        }
+
+
+        robot.intakearm.setPower(gamepad2.left_stick_y * armx);
+
+        if(gamepad2.right_stick_y > 0.3) scoringarm.down(0.6);
+        if(gamepad2.right_stick_y < -0.3) scoringarm.up(6200, 1.0);
+        scoringarm.check(!robot.scoringbutton.getState());
+        //robot.scoringarm.setPower(gamepad2.right_stick_y / 5);
+
         if(gamepad2.right_bumper) robot.scoring.setPosition(1);
         else if(gamepad2.left_bumper) robot.scoring.setPosition(0);
-        //else robot.scoring.setPower(0);
 
         // --- DASHBOARD ---
         packet.put("fieldcentric (X to toggle)", fieldcentric);
@@ -261,6 +288,8 @@ public class QbertQuick extends OpMode {
         }
 
         packet.put("lift position", robot.lift.getCurrentPosition());
+        packet.put("scoringarm position", robot.scoringarm.getCurrentPosition());
+        packet.put("intakearm position", robot.intakearm.getCurrentPosition());
 
         dashboard.sendTelemetryPacket(packet);
 
@@ -322,40 +351,111 @@ class Lift {
     boolean liftinit = true;        // if lift is running to the bottom at start
     boolean liftdown = true;        // if lift is running to the bottom otherwise
     int liftzero = 0;               // the bottom, in encoder clicks
-
+    double speed = 0;
 
     Lift(DcMotor liftmotor) {
         lift = liftmotor;
     }
 
-    public void down() {
+    public void down(double liftspeed) {
+        speed = liftspeed;
         if(!liftinit) {
             liftdown = true;
         }
     }
 
-    public void up(int top) {
+    public void up(int top, double liftspeed) {
         if(!liftinit) {
+            speed = liftspeed;
             lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift.setPower(1);
+            lift.setPower(speed);
             lift.setTargetPosition(liftzero - top);
             liftdown = false;
         }
     }
 
     public void check(boolean pressed) {
-        if(liftinit) runDown(pressed);
-        else {
-            if(liftdown) {
-                runDown(pressed);
-            }
+        if(liftinit || liftdown) runDown(pressed);
+        else if(!lift.isBusy()) {
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setPower(0);
         }
     }
 
     private void runDown(boolean pressed) {
         if(!pressed) {
             lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            lift.setPower(1);
+            lift.setPower(speed);
+        }
+        else {
+            liftzero = lift.getCurrentPosition();
+            liftinit = false;
+            liftdown = false;
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setTargetPosition(liftzero);
+        }
+    }
+}
+
+
+class ScoringArm {
+    DcMotor lift;
+
+    //FtcDashboard dashboard = FtcDashboard.getInstance();
+
+    // Automatic lift variables
+    boolean liftinit = true;        // if lift is running to the bottom at start
+    boolean liftdown = true;        // if lift is running to the bottom otherwise
+    int liftzero = 0;               // the bottom, in encoder clicks
+    double speed = 0.4;
+    int target = 0;
+
+    ScoringArm(DcMotor liftmotor) {
+        lift = liftmotor;
+    }
+
+    public void down(double liftspeed) {
+        speed = liftspeed;
+        if(!liftinit) {
+            liftdown = true;
+        }
+    }
+
+    public void up(int top, double liftspeed) {
+        if(!liftinit) {
+            speed = liftspeed;
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setPower(speed);
+            target = liftzero - top;
+            lift.setTargetPosition(target);
+            liftdown = false;
+        }
+    }
+
+    public void check(boolean pressed) {
+        //TelemetryPacket packet = new TelemetryPacket();
+        if(liftinit || liftdown) runDown(pressed);
+        else if(!lift.isBusy()) {
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setPower(0);
+        }
+        else if(lift.getCurrentPosition() < (target + 1000)) {
+            lift.setPower(0.3);
+        }
+
+        /*packet.put("RunMode", lift.getMode());
+        packet.put("Speed", lift.getPower());
+        packet.put("Current", lift.getCurrentPosition());
+        packet.put("Target", lift.getTargetPosition());
+        packet.put("Pressed", pressed);
+
+        dashboard.sendTelemetryPacket(packet);*/
+    }
+
+    private void runDown(boolean pressed) {
+        if(!pressed) {
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setPower(speed);
         }
         else {
             liftzero = lift.getCurrentPosition();
