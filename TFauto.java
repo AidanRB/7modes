@@ -106,7 +106,7 @@ public class TFauto extends LinearOpMode {
             opModeIsActive();
         }
         robot.latch.setPower(-1);
-        pause(2000);
+        pause(2500);
         robot.latch.setPower(0);
 
         double speed = 0.8;
@@ -226,7 +226,7 @@ public class TFauto extends LinearOpMode {
 
     /*void turnRel(double turnAmount) {
         robot.updateGyro(5);
-        float currentAngle = robot.angles.thirdAngle;
+        float currentAngle = -robot.angles.secondAngle;
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("angle", currentAngle);
         dashboard.sendTelemetryPacket(packet);
@@ -241,7 +241,7 @@ public class TFauto extends LinearOpMode {
         double turn = 0;
         while(opModeIsActive()) {
             robot.updateGyro(5);
-            currentAngle = robot.angles.thirdAngle;
+            currentAngle = -robot.angles.secondAngle;
             packet = new TelemetryPacket();
             packet.put("currentAngle", currentAngle);
             packet.put("setangle", setangle);

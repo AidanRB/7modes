@@ -107,7 +107,7 @@ public class QbertQuick extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
 
         robot.updateGyro(5);    // Obtain new gyro information
-        currentAngle = robot.angles.firstAngle;
+        currentAngle = -robot.angles.secondAngle;
 
 
         // --- GAMEPAD INPUT ---
@@ -150,7 +150,7 @@ public class QbertQuick extends OpMode {
         // --- WHEEL POWERS ---
         r = r * r * r;                                  // Curve the speed exponentially
         r = r * speed / 10.0;                         // Adjust the translation speed
-        turn = turn * speed;
+        turn = turn * speed / 10.0;
         for(int i = 0; i != wheels.length; i++) {                   // For all the wheels:
             powers[i] = (Math.sin(wheels[i] - theta) * r) + turn;  // calculate the desired speed
             // sin(wheel direction - desired direction finds speed), *r accounts
@@ -209,21 +209,15 @@ public class QbertQuick extends OpMode {
         if(gamepad2.dpad_down) lift.down(1);
         if(gamepad2.dpad_up) lift.up(16500, 1);
         lift.check(!robot.liftbutton.getState());
-
         if(gamepad2.dpad_left) robot.latch.setPower(-1);
         else if(gamepad2.dpad_right) robot.latch.setPower(1);
         else robot.latch.setPower(0);
 
-        /*if(gamepad2.right_trigger > 0 && gamepad2.left_trigger > 0) // if both are pressed:
-            robot.intake.setPower(-(gamepad2.left_trigger + gamepad2.left_trigger) / 2);   // run -
-        else if(gamepad2.right_trigger > intakespeed) {  // if right is pressed
-            intakespeed = gamepad2.right_trigger;
-            robot.intake.setPower(intakespeed);  // run forward
-        }
-        else if(gamepad2.right_trigger > 0) // if left is pressed
-            robot.intake.setPower(0);   // stop*/
+        if(gamepad2.right_bumper) robot.intake.setPower(1);
+        else if(gamepad2.left_bumper) robot.intake.setPower(-1);
+        else robot.intake.setPower(gamepad2.right_trigger * 0.4 - gamepad2.left_trigger * 0.2);
 
-        robot.intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+
 
         // if the arm is all the way in and trying to go in, kill and reset it
         if(gamepad2.left_stick_y > 0 && !robot.intakebutton.getState()) {
@@ -247,16 +241,11 @@ public class QbertQuick extends OpMode {
             armx = 1;
         }
 
-
         robot.intakearm.setPower(gamepad2.left_stick_y * armx);
 
         if(gamepad2.right_stick_y > 0.3) scoringarm.down(0.6);
         if(gamepad2.right_stick_y < -0.3) scoringarm.up(6200, 1.0);
         scoringarm.check(!robot.scoringbutton.getState());
-        //robot.scoringarm.setPower(gamepad2.right_stick_y / 5);
-
-        if(gamepad2.right_bumper) robot.scoring.setPosition(1);
-        else if(gamepad2.left_bumper) robot.scoring.setPosition(0);
 
         // --- DASHBOARD ---
         packet.put("fieldcentric (X to toggle)", fieldcentric);
