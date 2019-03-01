@@ -243,6 +243,7 @@ public class QbertQuick extends OpMode {
 
         robot.intakearm.setPower(gamepad2.left_stick_y * armx);
 
+        if(gamepad2.right_stick_button) scoringarm.stop();
         if(gamepad2.right_stick_y > 0.3) scoringarm.down(0.6);
         if(gamepad2.right_stick_y < -0.3) scoringarm.up(6200, 1.0);
         scoringarm.check(!robot.scoringbutton.getState());
@@ -419,6 +420,11 @@ class ScoringArm {
             lift.setTargetPosition(target);
             liftdown = false;
         }
+    }
+
+    public void stop() {
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setPower(0);
     }
 
     public void check(boolean pressed) {
