@@ -14,15 +14,15 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-@Autonomous(name = "TF Crater", group = "Concept")
+@Autonomous(name = "TF Depot", group = "Concept")
 
-public class TFautoLeft extends TFauto {
+public class TFautoRight extends TFauto {
 
     public void runOpMode() {
         super.runOpMode();
 
         // Lower and let go
-        //robot.mark.setPosition(0.0);
+        robot.mark.setPosition(0.7);
         robot.lift.setTargetPosition(robot.lift.getCurrentPosition() - 18500);
         robot.lift.setPower(1);
         while(robot.lift.isBusy()) {
@@ -33,41 +33,53 @@ public class TFautoLeft extends TFauto {
         robot.latch.setPower(0);
 
         double speed = 0.8;
-        double middledist = 18;
-        double sidedist = 23;
-        double sideturn = 35;
+        double sidedist = 25;
         long pausetime = 300;
         driveBackward(speed, 1);
         turnAbs(0);
         driveBackward(speed, 4);
-        //pause(1000);
+
+        //sample
         switch(goldPosition) {
             case "middle":
-                driveBackward(speed, middledist);
-                //pause(pausetime);
-                //driveForward(speed, 10);
-                //turnAbs(0);
-                //driveRight(speed, 12);
+                driveBackward(speed, 40);
+                pause(pausetime);
                 break;
             case "left":
                 pause(pausetime);
-                turnAbs(sideturn);
+                turnAbs(45);
                 driveBackward(speed, sidedist);
-                //pause(pausetime);
-                //driveForward(speed, 15);
+                turnAbs(-35);
+                driveBackward(speed, sidedist);
                 break;
             case "right":
                 pause(pausetime);
-                turnAbs(-sideturn);
+                turnAbs(-45);
                 driveBackward(speed, sidedist);
-                //pause(pausetime);
-                //driveForward(speed, 15);
-                //turnAbs(0);
-                //driveRight(speed, 30);
+                turnAbs(35);
+                driveBackward(speed, sidedist);
                 break;
         }
-        turnAbs(90);
-        //driveBackward();
+
+        //claim
+        turnAbs(-135);
+        robot.mark.setPosition(0.0);
+        pause(1000);
+
+        //drive after
+        switch(goldPosition) {
+            case "middle":
+                driveForward(speed, 10);
+                break;
+            case "left":
+                break;
+            case "right":
+                driveForward(speed, 10);
+                break;
+        }
+        turnAbs(-135);
+        driveLeft(speed, 65);
+        turnAbs(-135);
         robot.intakearm.setTargetPosition(-800);
         robot.intakearm.setPower(0.4);
         while(robot.intakearm.isBusy() && opModeIsActive()) {}

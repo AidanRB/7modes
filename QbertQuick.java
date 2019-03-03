@@ -35,6 +35,7 @@ public class QbertQuick extends OpMode {
     private ScoringArm scoringarm;
     private double intakespeed = 0;
     private double armx = 1;
+    private float recall = 0;
     /* Declare OpMode members. */
     private Qbert robot = new Qbert();
     // Defines wheel positions
@@ -114,7 +115,13 @@ public class QbertQuick extends OpMode {
         turn = -gamepad1.right_stick_x;  // Use the right joy x for turning
         y = gamepad1.left_stick_y;      // Get left joy y
         x = -gamepad1.left_stick_x;     // Get left joy x
-
+        if(gamepad1.left_bumper) {
+            recall = currentAngle;
+        }
+        if(gamepad1.right_bumper) {
+            turning = true;
+            setangle = recall;
+        }
 
         // --- TO POLAR COORDINATES ---
         r = Math.min(Math.sqrt(x * x + y * y), 1);      // Convert x,y to speed
@@ -131,7 +138,7 @@ public class QbertQuick extends OpMode {
         if(righteous || turning) {                      // If self-righting or turning:
             if(turn == 0.0) {                               // If not manually turning:
                 delta = currentAngle - setangle;     // Get needed correction
-                turn = -wrap(delta) / 180;                       // Set turn to correction
+                turn = -wrap(delta) / 180 * 1.6;                       // Set turn to correction
             }
             else {                                          // If manually turning:
                 setangle = currentAngle;             // Set return angle
@@ -178,10 +185,10 @@ public class QbertQuick extends OpMode {
             setangle = currentAngle;     // Set return angle
         }
         if(!slswitch && gamepad1.b && speed > 1) {      // If B is pushed and speed over 1:
-            speed -= 1;                                 // decrease speed
+            speed -= 2;                                 // decrease speed
         }
         if(!fsswitch && gamepad1.a && speed < 10) {     // If A is pushed and speed under 10:
-            speed += 1;                                 // increase speed
+            speed += 2;                                 // increase speed
         }
         if(!fsswitch && gamepad1.b && gamepad1.a && speed == 10) {
             speed = 11;
@@ -207,7 +214,7 @@ public class QbertQuick extends OpMode {
         // --- SPECIAL MOTORS ---
 
         if(gamepad2.dpad_down) lift.down(1);
-        if(gamepad2.dpad_up) lift.up(16500, 1);
+        if(gamepad2.dpad_up) lift.up(18500, 1);
         lift.check(!robot.liftbutton.getState());
         if(gamepad2.dpad_left) robot.latch.setPower(-1);
         else if(gamepad2.dpad_right) robot.latch.setPower(1);
@@ -228,7 +235,7 @@ public class QbertQuick extends OpMode {
         }
 
         // if the arm is all the way out and trying to go out, just kill it
-        if(gamepad2.left_stick_y < 0 && robot.intakearm.getCurrentPosition() < -2900) {
+        if(gamepad2.left_stick_y < 0 && robot.intakearm.getCurrentPosition() < -2500) {
             armx = 0;
         }
         else if(robot.intakearm.getCurrentPosition() > -800) {
@@ -341,7 +348,7 @@ class Lift {
     boolean liftinit = true;        // if lift is running to the bottom at start
     boolean liftdown = true;        // if lift is running to the bottom otherwise
     int liftzero = 0;               // the bottom, in encoder clicks
-    double speed = 0;
+    double speed = 1;
 
     Lift(DcMotor liftmotor) {
         lift = liftmotor;

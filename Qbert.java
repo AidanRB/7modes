@@ -36,7 +36,6 @@ public class Qbert
     public DcMotor intakearm = null;
     public DcMotor intake = null;
     public DcMotor scoringarm = null;
-    public Servo scoring = null;
     public BNO055IMU imu;
     public Orientation angles;
     public Acceleration gravity;
@@ -68,7 +67,6 @@ public class Qbert
         intakearm = ahwMap.dcMotor.get("intakearm");
         intake = ahwMap.dcMotor.get("intake");
         scoringarm = ahwMap.dcMotor.get("scoringarm");
-        scoring = ahwMap.servo.get("scoring");
 
         one.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         two.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

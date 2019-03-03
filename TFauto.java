@@ -28,7 +28,7 @@ public class TFauto extends LinearOpMode {
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
 
-    private String goldPosition = "left";
+    public String goldPosition = "left";
 
     public void runOpMode() {
         initVuforia();
@@ -44,6 +44,8 @@ public class TFauto extends LinearOpMode {
 
         robot.init(hardwareMap);
         robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.intakearm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.intakearm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while(!opModeIsActive()) {  // pre-opmode loop
             TelemetryPacket packet = new TelemetryPacket();
@@ -97,49 +99,6 @@ public class TFauto extends LinearOpMode {
                 }
             }
         }   // end of pre-opmode loop
-
-        // Lower and let go
-        robot.mark.setPosition(0.7);
-        robot.lift.setTargetPosition(robot.lift.getCurrentPosition() - 16500);
-        robot.lift.setPower(1);
-        while(robot.lift.isBusy()) {
-            opModeIsActive();
-        }
-        robot.latch.setPower(-1);
-        pause(2500);
-        robot.latch.setPower(0);
-
-        double speed = 0.8;
-        double middledist = 18;
-        double sidedist = 23;
-        double sideturn = 35;
-        long pausetime = 300;
-        driveBackward(speed, 1);
-        turnAbs(0);
-        driveBackward(speed, 4);
-        //pause(1000);
-        switch(goldPosition) {
-            case "middle":
-                driveBackward(speed, middledist);
-                pause(pausetime);
-                driveForward(speed, middledist);
-                break;
-            case "left":
-                pause(pausetime);
-                turnAbs(sideturn);
-                driveBackward(speed, sidedist);
-                pause(pausetime);
-                driveForward(speed, sidedist);
-                break;
-            case "right":
-                pause(pausetime);
-                turnAbs(-sideturn);
-                driveBackward(speed, sidedist);
-                pause(pausetime);
-                driveForward(speed, sidedist);
-                break;
-        }
-        turnAbs(0);
     }
 
     private void initVuforia() {
@@ -179,7 +138,27 @@ public class TFauto extends LinearOpMode {
         robot.four.setPower(-speed);
 
         int initial = robot.one.getCurrentPosition();
+        float currentAngle;
+        currentAngle = -robot.angles.secondAngle;
+        float setangle = currentAngle;
+        TelemetryPacket packet;
+        double turn = 0;
         while(robot.one.getCurrentPosition() < initial + distance * 1075.2 / 3.1415 / 5) {
+            robot.updateGyro(5);
+            currentAngle = -robot.angles.secondAngle;
+            packet = new TelemetryPacket();
+            packet.put("currentAngle", currentAngle);
+            packet.put("setangle", setangle);
+            packet.put("turn", turn);
+            dashboard.sendTelemetryPacket(packet);
+            turn = -wrap(currentAngle - setangle) / 180 * 1.6;     // Get needed correction
+            turn *= 1.5;
+
+            robot.one.setPower(speed + turn);
+            robot.two.setPower(speed + turn);
+            robot.three.setPower(-speed + turn);
+            robot.four.setPower(-speed + turn);
+
             telemetry.addData("one", robot.one.getCurrentPosition());
             telemetry.update();
         }
@@ -193,9 +172,32 @@ public class TFauto extends LinearOpMode {
         robot.four.setPower(speed);
 
         int initial = robot.one.getCurrentPosition();
+        float currentAngle;
+        currentAngle = -robot.angles.secondAngle;
+        float setangle = currentAngle;
+        TelemetryPacket packet;
+        double turn = 0;
         while(robot.one.getCurrentPosition() > initial - distance * 1075.2 / 3.1415 / 5) {
+            robot.updateGyro(5);
+            currentAngle = -robot.angles.secondAngle;
+            packet = new TelemetryPacket();
+            packet.put("currentAngle", currentAngle);
+            packet.put("setangle", setangle);
+            packet.put("turn", turn);
+            dashboard.sendTelemetryPacket(packet);
+            turn = -wrap(currentAngle - setangle) / 180 * 1.6;     // Get needed correction
+            turn *= 1.5;
+
+            robot.one.setPower(-speed + turn);
+            robot.two.setPower(-speed + turn);
+            robot.three.setPower(speed + turn);
+            robot.four.setPower(speed + turn);
+
             telemetry.addData("one", robot.one.getCurrentPosition());
             telemetry.update();
+            /*
+             *
+             */
         }
         stopWheels();
     }
@@ -207,7 +209,32 @@ public class TFauto extends LinearOpMode {
         robot.four.setPower(speed);
 
         int initial = robot.one.getCurrentPosition();
+        float currentAngle;
+        currentAngle = -robot.angles.secondAngle;
+        float setangle = currentAngle;
+        TelemetryPacket packet;
+        double turn = 0;
         while(robot.one.getCurrentPosition() < initial + distance * 1075.2 / 3.1415 / 5) {
+            robot.updateGyro(5);
+            currentAngle = -robot.angles.secondAngle;
+            packet = new TelemetryPacket();
+            packet.put("currentAngle", currentAngle);
+            packet.put("setangle", setangle);
+            packet.put("turn", turn);
+            dashboard.sendTelemetryPacket(packet);
+            turn = -wrap(currentAngle - setangle) / 180 * 1.6;     // Get needed correction
+            turn *= 1.5;
+
+            robot.one.setPower(speed + turn);
+            robot.two.setPower(-speed + turn);
+            robot.three.setPower(-speed + turn);
+            robot.four.setPower(speed + turn);
+
+            telemetry.addData("one", robot.one.getCurrentPosition());
+            telemetry.update();
+            /*
+             *
+             */
         }
         stopWheels();
     }
@@ -219,7 +246,32 @@ public class TFauto extends LinearOpMode {
         robot.four.setPower(-speed);
 
         int initial = robot.one.getCurrentPosition();
+        float currentAngle;
+        currentAngle = -robot.angles.secondAngle;
+        float setangle = currentAngle;
+        TelemetryPacket packet;
+        double turn = 0;
         while(robot.one.getCurrentPosition() > initial - distance * 1075.2 / 3.1415 / 5) {
+            robot.updateGyro(5);
+            currentAngle = -robot.angles.secondAngle;
+            packet = new TelemetryPacket();
+            packet.put("currentAngle", currentAngle);
+            packet.put("setangle", setangle);
+            packet.put("turn", turn);
+            dashboard.sendTelemetryPacket(packet);
+            turn = -wrap(currentAngle - setangle) / 180 * 1.6;     // Get needed correction
+            turn *= 1.5;
+
+            robot.one.setPower(-speed + turn);
+            robot.two.setPower(speed + turn);
+            robot.three.setPower(speed + turn);
+            robot.four.setPower(-speed + turn);
+
+            telemetry.addData("one", robot.one.getCurrentPosition());
+            telemetry.update();
+            /*
+             *
+             */
         }
         stopWheels();
     }
@@ -247,12 +299,12 @@ public class TFauto extends LinearOpMode {
             packet.put("setangle", setangle);
             packet.put("turn", turn);
             dashboard.sendTelemetryPacket(packet);
-            turn = -wrap(currentAngle - setangle) / 180;     // Get needed correction
+            turn = -wrap(currentAngle - setangle) / 180 * 1.6;     // Get needed correction
             turn *= 1.5;
-            if(Math.abs(turn) < 0.03)
+            if(Math.abs(turn) < 0.04)
                 turn = 0;                 // don't bother if you're super close
-            if(turn < 0.15 && turn > 0.03) turn = 0.15;         // if .05-.15, use .15 power
-            if(turn > -0.15 && turn < -0.03)
+            if(turn < 0.15 && turn > 0.04) turn = 0.15;         // if .05-.15, use .15 power
+            if(turn > -0.15 && turn < -0.04)
                 turn = -0.15;      // ditto for negative; avoids squeeking
 
             robot.one.setPower(turn);
